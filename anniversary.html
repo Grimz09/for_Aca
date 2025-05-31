@@ -327,7 +327,7 @@
     </div>
 
         <audio id="backgroundMusic" loop>
-        <source src="./Untitled.m4a" type="audio/mpeg">
+        <source src="./Untitled.mp3" type="audio/mpeg">
         Browser Anda tidak mendukung elemen audio.
     </audio>
 
@@ -336,6 +336,7 @@
             const puzzleToGalleryArrow = document.getElementById('puzzleToGalleryArrow');
             const backgroundMusic = document.getElementById('backgroundMusic');
             let musicStarted = false
+
             // --- Script untuk Floating Hearts ---
             const heartsContainer = document.getElementById('floatingHeartsContainer');
             const heartColors = ['#ffccd5', '#ffb3c1', '#ff8fa3', '#ffe0e6', '#ffc2d1', '#fec8d8', '#ffafcc'];
@@ -428,40 +429,65 @@
                     }
                 }, speed);
             }
-            if (envelopeOpener && letterModal && letterTextContent && closeLetterBtn && envelopeSvg && backgroundMusic) {
+            function attemptPlayMusic() {
+                if (backgroundMusic && !musicStarted && backgroundMusic.paused) {
+                    console.log("Attempting to play music NOW (readyState:", backgroundMusic.readyState + ")...");
+                    const playPromise = backgroundMusic.play();
+                    if (playPromise !== undefined) {
+                        console.log("Play promise obtained.");
+                        playPromise.then(() => {
+                            musicStarted = true;
+                            console.log("Musik berhasil dimulai dan akan berulang.");
+                        }).catch(error => {
+                            console.error("Gagal memulai musik (promise rejected):", error.name, error.message);
+                            // Pertimbangkan untuk memberi tahu pengguna bahwa mereka mungkin perlu mengaktifkan suara secara manual
+                            // atau bahwa browser memblokir autoplay.
+                        });
+                    } else {
+                        console.warn("Browser tidak mengembalikan promise untuk play(). Coba metode play langsung.");
+                        try {
+                            backgroundMusic.play();
+                            musicStarted = true;
+                            console.log("Musik berhasil dimulai (metode fallback) dan akan berulang.");
+                        } catch (e) {
+                            console.error("Error dengan metode play fallback:", e);
+                        }
+                    }
+                } else if (musicStarted) {
+                    console.log("Musik sudah pernah dimulai atau sedang berputar.");
+                } else if (backgroundMusic && !backgroundMusic.paused) {
+                     console.log("Musik sudah berputar (tidak dijeda).");
+                     musicStarted = true; // Tandai sudah dimulai jika memang sudah berputar
+                } else if (!backgroundMusic) {
+                     console.error("Elemen backgroundMusic tidak ditemukan!");
+                }
+            }
+
+            if (envelopeOpener && letterModal && letterTextContent && closeLetterBtn && envelopeSvg) {
                 envelopeOpener.addEventListener('click', () => {
+                    console.log("Amplop diklik.");
                     envelopeSvg.classList.add('open'); 
                     letterModal.classList.add('show');
                     typeLetter(letterTextContent, letterFullText);
-
-                    const isMobile = window.innerWidth <= 768; // Anda bisa sesuaikan breakpoint ini
-                    if (isMobile && !musicStarted) {
-                        backgroundMusic.play().then(() => {
-                            musicStarted = true;
-                            console.log("Musik dimulai setelah klik amplop di mobile.");
-                        }).catch(error => {
-                            console.warn("Gagal memulai musik setelah klik amplop di mobile:", error);
-                        });
-                    } else if (!isMobile && backgroundMusic.paused) { 
-                        // Untuk desktop, coba putar jika belum berputar (misalnya jika autoplay awal gagal)
-                         backgroundMusic.play().catch(error => {
-                            console.warn("Gagal memulai musik setelah klik amplop di desktop:", error);
-                        });
-                         musicStarted = true; // Anggap sudah dimulai untuk desktop juga
-                    }
+                    attemptPlayMusic(); // Panggil fungsi untuk mencoba memutar musik
                 });
+
                 closeLetterBtn.addEventListener('click', () => {
                     letterModal.classList.remove('show');
                     envelopeSvg.classList.remove('open'); 
                     clearInterval(typingInterval); 
+                    // Musik tidak dihentikan di sini
                 });
                 letterModal.addEventListener('click', function(event) {
                     if (event.target === letterModal) {
                         letterModal.classList.remove('show');
                         envelopeSvg.classList.remove('open');
                         clearInterval(typingInterval);
+                        // Musik tidak dihentikan di sini
                     }
                 });
+            } else {
+                 console.error("Satu atau lebih elemen UI (amplop/surat) tidak ditemukan.");
             }
 
             // --- Script untuk Puzzle (Ukuran & Warna Diubah di CSS) ---
@@ -731,5 +757,8 @@
             }
         });
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script>
 </body>
 </html>
