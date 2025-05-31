@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unlock Your Special Gift</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Gaya dari versi sebelumnya untuk pin-page, pin-container, dll. */
+        body.pin-page {
+            background-color: #eaddcf;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 15px; /* Padding untuk layar kecil */
+            box-sizing: border-box;
+        }
+
+        .pin-container {
+            background-color: #fff;
+            padding: 25px 20px; /* Padding disesuaikan untuk mobile */
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(216, 27, 96, 0.1), 0 3px 10px rgba(0,0,0,0.07);
+            text-align: center;
+            width: 100%; /* Lebar penuh di mobile */
+            max-width: 340px; /* Batas lebar di desktop */
+            border: 1px solid #eaddcf;
+        }
+
+        .pin-header-icon {
+            font-size: 40px; /* Ukuran ikon disesuaikan */
+            color: #bf8069d0;
+            margin-bottom: 10px;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .pin-title {
+            font-size: 18px; /* Ukuran judul disesuaikan */
+            color: #bf8069d0;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .pin-input-area {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 6px; /* Jarak slot disesuaikan */
+        }
+
+        .pin-input-slot {
+            width: 40px; /* Ukuran slot disesuaikan */
+            height: 50px;
+            border: 2px solid #bf8069d0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px; /* Ukuran hati disesuaikan */
+            color: #bf8069d0;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .pin-input-slot.correct {
+            background-color: #e8f5e9; /* Hijau muda */
+            border-color: #4caf50; /* Hijau */
+            /* Warna hati tetap #e91e63 (merah muda) sesuai permintaan */
+        }
+
+        .pin-keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px; /* Jarak tombol disesuaikan */
+        }
+
+        .keypad-button {
+            background-color: #eaddcf;
+            border: none;
+            border-radius: 10px; /* Tombol lebih rounded */
+            width: 100%;
+            height: 55px; /* Tinggi tombol disesuaikan */
+            font-size: 20px;
+            font-weight: 500;
+            color: #704214;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .keypad-button:hover {
+            background-color: #bf8069d0;
+        }
+        .keypad-button:active {
+            transform: scale(0.95);
+        }
+
+        .keypad-button.special {
+            background-color: #704214;
+            color: white;
+        }
+         .keypad-button.special:hover {
+            background-color: #bf8069d0;
+        }
+        .keypad-button.unlock {
+             background-color: #704214;
+        }
+        .keypad-button.unlock:hover {
+            background-color: #bf8069d0;
+        }
+    </style>
+</head>
+<body class="pin-page">
+    <div class="pin-container">
+        <div class="pin-header-icon">❤️</div>
+        <div class="pin-title">Unlock Your Special Gift</div>
+        <div class="pin-input-area">
+            <div class="pin-input-slot" id="slot-0"></div>
+            <div class="pin-input-slot" id="slot-1"></div>
+            <div class="pin-input-slot" id="slot-2"></div>
+            <div class="pin-input-slot" id="slot-3"></div>
+        </div>
+        <div class="pin-keypad">
+            <button class="keypad-button" data-value="1">1</button>
+            <button class="keypad-button" data-value="2">2</button>
+            <button class="keypad-button" data-value="3">3</button>
+            <button class="keypad-button" data-value="4">4</button>
+            <button class="keypad-button" data-value="5">5</button>
+            <button class="keypad-button" data-value="6">6</button>
+            <button class="keypad-button" data-value="7">7</button>
+            <button class="keypad-button" data-value="8">8</button>
+            <button class="keypad-button" data-value="9">9</button>
+            <button class="keypad-button special" id="delete-button">✕</button>
+            <button class="keypad-button" data-value="0">0</button>
+            <button class="keypad-button special unlock" id="unlock-button">🔓</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const pinSlots = Array.from(document.querySelectorAll('.pin-input-slot'));
+            const keypadButtons = document.querySelectorAll('.keypad-button[data-value]');
+            const deleteButton = document.getElementById('delete-button');
+            const unlockButton = document.getElementById('unlock-button');
+            const correctPin = "0106";
+            let enteredPin = "";
+            let currentSlotIndex = 0;
+
+            if (!pinSlots.length || !keypadButtons.length || !deleteButton || !unlockButton) {
+                console.error("Elemen PIN tidak ditemukan! Periksa ID HTML.");
+                return;
+            }
+
+            keypadButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    if (currentSlotIndex < pinSlots.length) {
+                        const value = button.getAttribute('data-value');
+                        pinSlots[currentSlotIndex].innerHTML = '❤️'; // Tetap hati
+                        pinSlots[currentSlotIndex].classList.remove('correct'); // Hapus kelas correct jika mengisi ulang
+                        enteredPin += value;
+                        currentSlotIndex++;
+                    }
+                });
+            });
+
+            deleteButton.addEventListener('click', () => {
+                if (currentSlotIndex > 0) {
+                    currentSlotIndex--;
+                    pinSlots[currentSlotIndex].innerHTML = '';
+                    pinSlots[currentSlotIndex].classList.remove('correct');
+                    enteredPin = enteredPin.slice(0, -1);
+                }
+            });
+
+            unlockButton.addEventListener('click', () => {
+                if (enteredPin === correctPin) {
+                    pinSlots.forEach((slot, index) => {
+                        if (index < enteredPin.length) {
+                            slot.classList.add('correct');
+                            // Tidak mengubah innerHTML menjadi centang, biarkan hati
+                        }
+                    });
+                    setTimeout(() => {
+                        window.location.href = "anniversary.html";
+                    }, 1000);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Kode Salah! Silakan coba lagi.',
+                        confirmButtonColor: '#e91e63',
+                        confirmButtonText: 'Coba Lagi'
+                    });
+                    enteredPin = "";
+                    currentSlotIndex = 0;
+                    pinSlots.forEach(slot => {
+                        slot.innerHTML = '';
+                        slot.classList.remove('correct');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

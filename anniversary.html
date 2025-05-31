@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perjalanan Anniversary Kita</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Dancing+Script:wght@400..700&family=Caveat:wght@400..700&family=Sacramento&display=swap" rel="stylesheet">
+
+    <style>
+        /* CSS Reset & Global Styles */
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
+            background-color: #fbf7f0; /* Latar belakang utama yang lembut dan seragam untuk seluruh halaman */
+            color: #444; overflow-x: hidden;
+        }
+        .main-container { width: 100%; position: relative; }
+        section {
+            min-height: 100vh; padding: 80px 20px; box-sizing: border-box;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; text-align: center; position: relative;
+            overflow: hidden; 
+            /* background-color: #fbf7f0; */ /* DIHAPUS agar latar body terlihat dan hati tidak tertutup */
+            opacity: 0; 
+            transform: translateY(40px); 
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            z-index: 1; /* Pastikan section di atas floating hearts container jika hearts z-index 0 */
+        }
+        section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .section-title {
+            font-family: 'Playfair Display', serif; font-size: 2.5em;
+            color: #704214; margin-bottom: 50px; font-weight: 700; letter-spacing: 1px;
+        }
+
+        /* === Floating Hearts Effect === */
+        .floating-hearts-container {
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; overflow: hidden;
+            z-index: 0; /* Di belakang section, tapi di atas background body */
+        }
+        .heart-particle {
+            position: absolute;
+            opacity: 0; 
+            animation-name: floatHeart;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+        .heart-particle::before,
+        .heart-particle::after {
+            content: ""; position: absolute; top: 0;
+            width: 50%; 
+            height: 80%; 
+            background-color: var(--heart-color, #ffccd5); 
+            border-radius: 50% 50% 0 0; 
+        }
+        .heart-particle::before {
+            left: 50%; 
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+        .heart-particle::after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+
+        @keyframes floatHeart {
+            0% {
+                transform: translateY(105vh) rotate(0deg); 
+                opacity: var(--start-opacity, 0.7); 
+            }
+            20% { 
+                opacity: var(--mid-opacity, 1);
+            }
+            80% { 
+                opacity: var(--mid-opacity, 1);
+            }
+            99% { 
+                transform: translateY(-90px) rotate(710deg); 
+                opacity: 0.1; 
+            }
+            100% {
+                transform: translateY(-100px) rotate(720deg); 
+                opacity: 0.05; 
+            }
+        }
+
+        /* === Animasi Scroll Variatif === */
+        @keyframes slideInFromLeft {
+            from { opacity: 0; transform: translateX(-80px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInFromRight {
+            from { opacity: 0; transform: translateX(80px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes zoomInEffect {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        section.anim-slide-left.is-visible { animation: slideInFromLeft 0.8s ease-out forwards; }
+        section.anim-slide-right.is-visible { animation: slideInFromRight 0.8s ease-out forwards; }
+        section.anim-zoom-in.is-visible { animation: zoomInEffect 0.8s ease-out forwards; }
+        section:not(.anim-slide-left):not(.anim-slide-right):not(.anim-zoom-in).is-visible {
+            opacity: 1; transform: translateY(0);
+        }
+
+
+        /* === Hero Anniversary Section === */
+        .hero-title-wrapper { display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 50px; }
+        .anniversary-text-main { font-family: 'Sacramento', cursive; font-size: calc(3rem + 5vw); color: #bf8069; margin: 0 10px; line-height: 1.2; opacity: 0; transform: translateY(20px); animation: fadeInAndUp 1s 0.5s forwards; }
+        .hero-polaroid { width: 100px; height: 120px; background-color: #fff; padding: 8px; border: 1px solid #eee; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-radius: 3px; position: absolute; opacity: 0; }
+        .hero-polaroid img { width: 100%; height: 100%; object-fit: cover; }
+        .hero-polaroid.left { top: -20px; left: 20%; transform: rotate(-12deg) scale(0.8); animation: popInWithRotate 0.8s 1.2s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .hero-polaroid.right { top: -15px; right: 20%; transform: rotate(10deg) scale(0.8); animation: popInWithRotateRight 0.8s 1.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
+        .envelope-opener { margin-top: 50px; cursor: pointer; opacity: 0; transform: translateY(20px); animation: fadeInAndUp 1s 2.5s forwards; }
+        .envelope-icon { width: 180px; height: auto; fill: #eaddcf; transition: transform 0.3s ease; }
+        .envelope-opener:hover .envelope-icon { transform: scale(1.08); }
+        .envelope-icon .flap { transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); transform-origin: 50% 15px; }
+        .envelope-icon.open .flap { transform: rotateX(-170deg); }
+        .envelope-icon .envelope-text { font-family: 'Poppins', sans-serif; font-size: 12px; fill: #704214; font-weight: 600; text-anchor: middle; pointer-events: none; transition: opacity 0.3s ease; dominant-baseline: central; }
+        .envelope-icon.open .envelope-text { opacity: 0; }
+
+        .letter-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0s linear 0.4s; z-index: 2000; }
+        .letter-modal-overlay.show { opacity: 1; visibility: visible; transition-delay: 0s; }
+        .letter-content { background-color: #fffaf0; padding: 30px 40px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 80%; max-width: 500px; min-height: 300px; position: relative; transform: translateY(100%) scale(0.7); opacity: 0; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s, opacity 0.4s ease 0.2s; }
+        .letter-modal-overlay.show .letter-content { transform: translateY(0) scale(1); opacity: 1; }
+        .letter-text { font-family: 'Caveat', cursive; font-size: 1.6em; line-height: 1.8; color: #5c3c20; text-align: left; white-space: pre-wrap; overflow: hidden; }
+        .typing-cursor { display: inline-block; background-color: #bf8069; width: 2px; height: 1.5em; animation: blink-caret .75s step-end infinite; margin-left: 2px; vertical-align: bottom; }
+        .close-letter-button { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 28px; color: #aaa; cursor: pointer; padding: 5px; line-height: 1; }
+        .close-letter-button:hover { color: #777; }
+
+        .scroll-down-hero { margin-top: 40px; font-size: 1.5em; color: #bf8069; animation: bounceArrow 2s infinite;}
+
+        /* === Puzzle Section (Diperbesar & Warna Coklat) === */
+        #heart-puzzle-container { display: flex; flex-direction: column; align-items: center; gap: 30px; width: 100%; max-width: 600px; }
+        .puzzle-area-flex { display: flex; flex-direction: column; align-items: center; gap: 25px; width: 100%; }
+        #puzzle-pieces-source { display: flex; flex-wrap: wrap; gap: 10px; padding: 15px; background-color: rgba(239, 235, 233, 0.85); border-radius: 10px; width: 100%; max-width: 400px; min-height: 180px; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+        .puzzle-piece { 
+            width: 90px; height: 90px; 
+            background-size: cover; border: 1px solid #d7ccc8; border-radius: 6px; 
+            cursor: grab; transition: transform 0.2s, box-shadow 0.2s, border-radius 0.3s ease, border 0.3s ease; 
+            background-color: #fff; user-select: none; -webkit-user-select: none; 
+            -moz-user-select: none; -ms-user-select: none; touch-action: none; 
+        }
+        .puzzle-piece:active { cursor: grabbing; } 
+        .puzzle-piece.dragging { opacity: 0.7; transform: scale(1.1); box-shadow: 0 8px 20px rgba(0,0,0,0.25); z-index: 1000 !important; }
+        #puzzle-target-area {
+            width: 270px; height: 270px; 
+            position: relative; background-color: #d7ccc8; 
+            display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+            gap: 0px; 
+            padding: 0px; 
+            border: 2px solid #bcaaa4; 
+            border-radius: 8px; 
+            box-shadow: 0 0 15px rgba(121, 85, 72, 0.2); 
+            transition: gap 0.4s ease, padding 0.4s ease, border-width 0.4s ease, border-color 0.4s ease; 
+        }
+        #puzzle-target-area:not(.completed) {
+            gap: 3px; 
+            padding: 3px; 
+        }
+        #puzzle-target-area.completed {
+            gap: 0px !important; padding: 0px !important; border-width: 0px !important; 
+            background-color: transparent; 
+        }
+        .drop-zone {
+            background-color: rgba(255,255,255,0.0); 
+            border: 1px dashed #bcaaa4; 
+            border-radius: 0px; 
+            display: flex; justify-content: center; align-items: center; overflow: hidden; 
+            transition: border 0.4s ease, border-radius 0.4s ease; 
+        }
+        #puzzle-target-area:not(.completed) .drop-zone {
+            /* Style drop-zone saat puzzle belum selesai, jika perlu */
+        }
+        #puzzle-target-area.completed .drop-zone {
+            border: none !important; border-radius: 0 !important; padding: 0 !important; 
+        }
+        #puzzle-target-area.completed .puzzle-piece.dropped {
+            border: none !important; border-radius: 0 !important; margin: 0 !important; padding: 0 !important; 
+        }
+        .drop-zone.over { background-color: rgba(188, 170, 164, 0.3); }
+        #puzzle-completion-message { display: none; margin-top: 20px; font-size: 1.3em; color: #5d4037; font-family: 'Caveat', cursive; }
+
+        /* === Polaroid Gallery Section === */
+        #polaroid-gallery-container { display: flex; flex-direction: column; align-items: center; gap: 35px; width: 100%; padding-bottom: 60px; }
+        #box-and-released-photos { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 25px; position: relative; width: 100%; max-width: 480px; }
+        #released-photos-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; padding: 10px; min-height: 120px; width: 100%; margin-bottom: -20px; position: relative; z-index: 5; }
+        #polaroid-box-image { width: 200px; height: auto; content: url('./images/kardus.svg'); cursor: pointer; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1; position: relative; }
+        #polaroid-box-image:hover { transform: translateY(-8px) scale(1.03) rotate(-2deg); }
+        .released-polaroid { width: 90px; height: 110px; background-color: #fff; padding: 8px 8px 25px 8px; box-shadow: 4px 4px 10px rgba(0,0,0,0.12); border: 1px solid #eee; border-radius: 4px; cursor: grab; display: flex; flex-direction: column; align-items: center; opacity: 0; transform: translateY(60px) translateX(var(--initial-translateX, 0px)) scale(0.4) rotate(var(--initial-rotate, 0deg)); transform-origin: center center; transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; touch-action: none; }
+        .released-polaroid img { width: 100%; height: 75px; object-fit: cover; margin-bottom: 6px; pointer-events: none; }
+        .released-polaroid.show { opacity: 1; }
+        .released-polaroid.dragging { opacity: 0.7; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 1000 !important; }
+        #photo-strings-container { display: flex; flex-direction: column; gap: 40px; width: 90%; max-width: 650px; }
+        .photo-string { width: 100%; height: 40px; background-image: url('./images/tali.svg'); background-size: 100% auto; background-repeat: no-repeat; background-position: center; display: flex; justify-content: space-around; align-items: center; padding: 0 80px; box-sizing: border-box; position: relative; filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.15)); }
+        .clothespin-slot { width: 50px; height: 100%; display: flex; justify-content: center; align-items: center; position: relative; }
+        .clothespin-slot img.clothespin-visual { width: 25px; height: auto; content: url('./images/penjepit.svg'); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -65%); z-index: 5; filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.2)); }
+        .clothespin-slot .dropped-polaroid-on-string { width: 80px; height: 100px; position: absolute; top: 25px; left: 50%; transform: translateX(-50%) rotate(0deg); z-index: 4; background-color: #fff; padding: 7px 7px 20px 7px; box-shadow: 3px 3px 8px rgba(0,0,0,0.2); border: 1px solid #e8e8e8; border-radius: 3px; overflow: hidden; }
+        .clothespin-slot .dropped-polaroid-on-string img { width: 100%; height: 70px; object-fit: cover; }
+        #polaroid-gallery > p.final-text { font-family: 'Caveat', cursive; font-size: 1.8em; color: #bf8069; margin-top: 45px; }
+
+        .scroll-down-indicator { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); font-size: 1.8em; color: #bf8069; animation: bounceArrow 2s infinite ease-in-out; cursor: pointer; opacity: 0.7; }
+
+        /* Animasi */
+        @keyframes fadeInAndUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes popInWithRotate { 0% { opacity: 0; transform: scale(0.5) rotate(-45deg) translateY(20px); } 70% { transform: scale(1.1) rotate(5deg) translateY(-5px); } 100% { opacity: 1; transform: scale(1) rotate(-12deg) translateY(0); } }
+        .hero-polaroid.right { animation-name: popInWithRotateRight; }
+        @keyframes popInWithRotateRight { 0% { opacity: 0; transform: scale(0.5) rotate(45deg) translateY(20px); } 70% { transform: scale(1.1) rotate(-5deg) translateY(-5px); } 100% { opacity: 1; transform: scale(1) rotate(10deg) translateY(0); } }
+        @keyframes bounceArrow { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-10px); } }
+        @keyframes shakeHorizontal { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-3px); } }
+        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #bf8069; } }
+
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .section-title { font-size: 1.8em; margin-bottom: 25px;}
+            .anniversary-text-main { font-size: calc(2.2rem + 6vw); }
+            .hero-polaroid { width: 70px; height: 85px; padding: 5px; }
+            .hero-polaroid.left { left: 5%; top: -10px;} .hero-polaroid.right { right: 5%; top: -5px;}
+            .envelope-icon { width: 130px; } 
+            .envelope-icon .envelope-text { font-size: 10px; }
+            .letter-content { padding: 25px 30px; width: 85%; }
+            .letter-text { font-size: 1.4em; }
+            #puzzle-target-area { width: 240px; height: 240px; } .puzzle-piece { width: 80px; height: 80px; } 
+            #puzzle-target-area.completed { width: 240px; height: 240px; }
+            #polaroid-box-image { width: 160px; }
+            .released-polaroid { width: 75px; height: 95px; padding: 6px 6px 18px 6px; transform: translateY(40px) scale(0.4) rotate(var(--initial-rotate, 0deg));}
+            .released-polaroid img { height: 60px; }
+            .photo-string { height: 30px; padding: 0 40px; background-size: contain; } 
+            .clothespin-slot img.clothespin-visual { width: 20px; transform: translate(-50%, -60%);} 
+            .clothespin-slot .dropped-polaroid-on-string { width: 70px; height: 90px; top: 12px;}
+            .clothespin-slot .dropped-polaroid-on-string img { height: 60px; }
+            #polaroid-gallery > p.final-text { font-size: 1.5em; }
+            #photo-strings-container { gap: 30px; } 
+        }
+        @media (max-width: 480px) {
+            .anniversary-text-main { font-size: calc(1.8rem + 7vw); }
+            .hero-polaroid.left { left: 2%; top: 0px; width: 60px; height: 75px;}
+            .hero-polaroid.right { right: 2%; top: 5px; width: 60px; height: 75px;}
+            .envelope-icon { width: 120px; } 
+            .envelope-icon .envelope-text { font-size: 9px; } 
+            .letter-content { padding: 20px 25px; width: 90%; }
+            .letter-text { font-size: 1.2em; }
+            .scroll-down-hero { font-size: 1.3em; }
+            #puzzle-target-area { width: 210px; height: 210px; } .puzzle-piece { width: 70px; height: 70px; } 
+            #puzzle-target-area.completed { width: 210px; height: 210px; }
+            #polaroid-box-image { width: 140px; }
+            .released-polaroid { width: 70px; height: 90px; transform: translateY(30px) scale(0.4) rotate(var(--initial-rotate, 0deg));}
+            .released-polaroid img { height: 55px; }
+            .photo-string { padding: 0 20px; height: 25px; }
+            .clothespin-slot img.clothespin-visual { width: 18px; transform: translate(-50%, -55%);}
+            .clothespin-slot .dropped-polaroid-on-string { top: 10px;}
+            #photo-strings-container { gap: 25px; } 
+        }
+    </style>
+</head>
+<body class="main-page">
+    <div class="main-container">
+        <div class="floating-hearts-container" id="floatingHeartsContainer"></div>
+
+        <section id="hero-anniversary" class="animated-section" data-animation="zoom-in"> <div class="hero-title-wrapper">
+                <div class="hero-polaroid left">
+                    <img src="./images/us/us/foto1.JPG" alt="Kenangan Manis Kiri">
+                </div>
+                <h1 class="anniversary-text-main">Happy Anniversary</h1>
+                <div class="hero-polaroid right">
+                    <img src="./images/us/us/foto2.JPG" alt="Kenangan Lucu Kanan">
+                </div>
+            </div>
+
+            <div class="envelope-opener" id="envelopeOpener" aria-label="Buka Surat">
+                <svg class="envelope-icon" id="envelopeSvg" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 15 Q50 30 95 15 L95 65 L5 65 Z" fill="#eaddcf"/> 
+                    <path class="flap" d="M5 15 Q50 30 95 15 L50 45 Z" fill="#d8bfd8"/> 
+                    <line x1="5" y1="15" x2="50" y2="45" stroke="#c0b0a0" stroke-width="0.5"/>
+                    <line x1="95" y1="15" x2="50" y2="45" stroke="#c0b0a0" stroke-width="0.5"/>
+                    <text x="50" y="42" class="envelope-text">Buka</text> 
+                </svg>
+            </div>
+            <a href="#heart-puzzle" class="scroll-down-indicator scroll-down-hero">︾</a>
+        </section>
+
+        <div class="letter-modal-overlay" id="letterModal">
+            <div class="letter-content">
+                <button class="close-letter-button" id="closeLetterBtn" aria-label="Tutup Surat">&times;</button>
+                <div class="letter-text" id="letterTextContent"></div>
+            </div>
+        </div>
+
+        <section id="heart-puzzle" class="animated-section" data-animation="slide-left"> <h2 class="section-title">Satuin Foto Ini!!!</h2>
+            <div id="heart-puzzle-container">
+                <div class="puzzle-area-flex">
+                    <div id="puzzle-pieces-source">
+                        <p style="color: #aaa; font-size: 0.9em;">Seret potongan dari sini</p>
+                    </div>
+                    <div id="puzzle-target-area"></div> </div>
+                <div id="puzzle-completion-message">
+                    <h3>Ahahahaha ini fotbar pertama kita!! ❤️</h3>
+                </div>
+            </div>
+            <a href="#polaroid-gallery" class="scroll-down-indicator" style="display:none;" id="puzzleToGalleryArrow">︾</a>
+        </section>
+
+        <section id="polaroid-gallery" class="animated-section" data-animation="slide-right"> <h2 class="section-title">Jejak Memori Kita</h2>
+            <div id="polaroid-gallery-container">
+                <div id="box-and-released-photos">
+                    <div id="released-photos-container"></div>
+                    <div id="polaroid-box-image" title="Klik untuk menemukan kenangan"></div>
+                    <p style="color: #888; font-size:0.9em; font-style: italic;">Klik kardus buat melihat foto kenangan!, pasang fotonya ke tali biar lucu!</p>
+                </div>
+                <div id="photo-strings-container">
+                    <div class="photo-string" id="string1"></div>
+                    <div class="photo-string" id="string2"></div>
+                </div>
+                 <p class="final-text">Untuk setiap tawa dan cerita, terima kasih telah ada. ❤️</p>
+            </div>
+        </section>
+    </div>
+
+        <audio id="backgroundMusic" loop>
+        <source src="./Untitled.m4a" type="audio/mpeg">
+        Browser Anda tidak mendukung elemen audio.
+    </audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const puzzleToGalleryArrow = document.getElementById('puzzleToGalleryArrow');
+            const backgroundMusic = document.getElementById('backgroundMusic');
+            let musicStarted = false
+            // --- Script untuk Floating Hearts ---
+            const heartsContainer = document.getElementById('floatingHeartsContainer');
+            const heartColors = ['#ffccd5', '#ffb3c1', '#ff8fa3', '#ffe0e6', '#ffc2d1', '#fec8d8', '#ffafcc'];
+            const numHeartsAtOnce = 3; 
+
+            function createHeart() {
+                if (!heartsContainer) return;
+                for (let i = 0; i < numHeartsAtOnce; i++) {
+                    const heart = document.createElement('div');
+                    heart.classList.add('heart-particle');
+                    
+                    const randomX = Math.random() * 100; 
+                    const randomDelay = Math.random() * 6; 
+                    const randomDuration = Math.random() * 7 + 8; 
+                    const heartSize = Math.random() * 15 + 10; 
+                    const randomStartOpacity = Math.random() * 0.4 + 0.5; 
+                    const randomMidOpacity = Math.random() * 0.3 + 0.7; 
+                    const randomColor = heartColors[Math.floor(Math.random() * heartColors.length)];
+
+                    heart.style.width = `${heartSize}px`;
+                    heart.style.height = `${heartSize}px`;
+                    heart.style.left = `${randomX}vw`;
+                    heart.style.animationDelay = `${randomDelay}s`;
+                    heart.style.animationDuration = `${randomDuration}s`;
+                    heart.style.setProperty('--heart-color', randomColor);
+                    heart.style.setProperty('--start-opacity', randomStartOpacity);
+                    heart.style.setProperty('--mid-opacity', randomMidOpacity);
+
+                    heartsContainer.appendChild(heart);
+
+                    // BARIS setTimeout DIHAPUS AGAR HATI TIDAK HILANG
+                }
+            }
+            if (heartsContainer) {
+                setInterval(createHeart, 1000); 
+                createHeart(); 
+            }
+
+            // --- Script untuk Animasi Scroll ---
+            const animatedSections = document.querySelectorAll('section.animated-section'); 
+            const animationClasses = ['anim-slide-left', 'anim-slide-right', 'anim-zoom-in'];
+            
+            const sectionObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animationClasses.forEach(cls => entry.target.classList.remove(cls)); 
+                        
+                        const animType = entry.target.dataset.animation;
+                        if (animType && animationClasses.includes(`anim-${animType}`)) { 
+                            entry.target.classList.add(`anim-${animType}`);
+                        }
+                         entry.target.classList.add('is-visible'); 
+
+                        observer.unobserve(entry.target); 
+                    }
+                });
+            }, { threshold: 0.2 });
+
+            animatedSections.forEach(section => {
+                sectionObserver.observe(section);
+            });
+
+
+            // --- Script untuk Amplop dan Surat (Sama) ---
+            const envelopeOpener = document.getElementById('envelopeOpener');
+            const envelopeSvg = document.getElementById('envelopeSvg');
+            const letterModal = document.getElementById('letterModal');
+            const letterTextContent = document.getElementById('letterTextContent');
+            const closeLetterBtn = document.getElementById('closeLetterBtn');
+            const letterFullText = "haii acaa sayanggkuu,\n\nhappy anniversary sayanggg! Tidaa terasa yaa sudah setahun kita jalani ini semua dengan suka dan duka yang kita lewati selama ini. semua ini adalah first experience aku yang sangat amat berkesan...\n\nAku harap kita bisa terus bersama, saling mendukung, dan menciptakan lebih banyak lagi kenangan manis. Acaa adalah segalanya bagi Bioo.\n\nDengan segenap cinta,\nBiooooo ❤️";
+            let typingInterval;
+            function typeLetter(textElement, fullText, speed = 70) {
+                if (!textElement) return; 
+                textElement.innerHTML = ""; 
+                let i = 0;
+                const existingCursor = textElement.querySelector('.typing-cursor');
+                if (existingCursor) existingCursor.remove();
+                const cursorSpan = document.createElement('span');
+                cursorSpan.classList.add('typing-cursor');
+                clearInterval(typingInterval); 
+                typingInterval = setInterval(() => {
+                    if (i < fullText.length) {
+                        if (textElement.contains(cursorSpan)) textElement.removeChild(cursorSpan);
+                        textElement.innerHTML += fullText.charAt(i);
+                        textElement.appendChild(cursorSpan); 
+                        i++;
+                    } else {
+                        clearInterval(typingInterval);
+                         if (textElement.contains(cursorSpan)) textElement.removeChild(cursorSpan);
+                    }
+                }, speed);
+            }
+            if (envelopeOpener && letterModal && letterTextContent && closeLetterBtn && envelopeSvg) {
+                envelopeOpener.addEventListener('click', () => {
+                    envelopeSvg.classList.add('open'); 
+                    letterModal.classList.add('show');
+                    typeLetter(letterTextContent, letterFullText);
+
+                    const isMobile = window.innerWidth <= 768; // Anda bisa sesuaikan breakpoint ini
+                    if (isMobile && !musicStarted) {
+                        backgroundMusic.play().then(() => {
+                            musicStarted = true;
+                            console.log("Musik dimulai setelah klik amplop di mobile.");
+                        }).catch(error => {
+                            console.warn("Gagal memulai musik setelah klik amplop di mobile:", error);
+                        });
+                    } else if (!isMobile && backgroundMusic.paused) { 
+                        // Untuk desktop, coba putar jika belum berputar (misalnya jika autoplay awal gagal)
+                         backgroundMusic.play().catch(error => {
+                            console.warn("Gagal memulai musik setelah klik amplop di desktop:", error);
+                        });
+                         musicStarted = true; // Anggap sudah dimulai untuk desktop juga
+                    }
+                });
+                closeLetterBtn.addEventListener('click', () => {
+                    letterModal.classList.remove('show');
+                    envelopeSvg.classList.remove('open'); 
+                    clearInterval(typingInterval); 
+                });
+                letterModal.addEventListener('click', function(event) {
+                    if (event.target === letterModal) {
+                        letterModal.classList.remove('show');
+                        envelopeSvg.classList.remove('open');
+                        clearInterval(typingInterval);
+                    }
+                });
+            }
+
+            // --- Script untuk Puzzle (Ukuran & Warna Diubah di CSS) ---
+            const puzzlePiecesSource = document.getElementById('puzzle-pieces-source');
+            const puzzleTargetArea = document.getElementById('puzzle-target-area');
+            const puzzleCompletionMessage = document.getElementById('puzzle-completion-message');
+            const NUM_PUZZLE_PIECES = 9;
+            let draggedElement = null; 
+            let correctPuzzlePlacements = 0;
+            let touchOffsetX, touchOffsetY; 
+
+            function initializePuzzle() {
+                if (!puzzleTargetArea || !puzzlePiecesSource) return;
+                puzzleTargetArea.innerHTML = '';
+                puzzlePiecesSource.innerHTML = '<p style="color: #aaa; font-size: 0.9em; width:100%;">Seret potongan dari sini</p>';
+                correctPuzzlePlacements = 0;
+                if (puzzleCompletionMessage) puzzleCompletionMessage.style.display = 'none';
+                if (puzzleToGalleryArrow) puzzleToGalleryArrow.style.display = 'none';
+                if (puzzleTargetArea) puzzleTargetArea.classList.remove('completed'); 
+
+                for (let i = 0; i < NUM_PUZZLE_PIECES; i++) {
+                    const dropZone = document.createElement('div');
+                    dropZone.classList.add('drop-zone');
+                    dropZone.dataset.slotId = `slot-${i}`;
+                    puzzleTargetArea.appendChild(dropZone);
+                    dropZone.addEventListener('dragover', e => e.preventDefault());
+                    dropZone.addEventListener('drop', handlePuzzleDrop);
+                }
+                const pieceOrder = Array.from({length: NUM_PUZZLE_PIECES}, (_, i) => i).sort(() => Math.random() - 0.5);
+                pieceOrder.forEach(originalIndex => {
+                    const piece = document.createElement('div');
+                    piece.classList.add('puzzle-piece');
+                    piece.id = `piece-${originalIndex}`;
+                    piece.dataset.correctSlot = `slot-${originalIndex}`;
+                    piece.draggable = true;
+                    piece.style.backgroundImage = `url('./images/puzzle/piece_${originalIndex}.jpeg')`;
+                    puzzlePiecesSource.appendChild(piece);
+                    
+                    piece.addEventListener('dragstart', e => { 
+                        draggedElement = e.target;
+                        setTimeout(() => { if(draggedElement) draggedElement.classList.add('dragging'); }, 0);
+                    });
+                    piece.addEventListener('dragend', e => {
+                        if(e.target.classList) e.target.classList.remove('dragging');
+                        draggedElement = null;
+                    });
+                    
+                    piece.addEventListener('touchstart', handleTouchStartGeneric, {passive: false});
+                    piece.addEventListener('touchmove', handleTouchMoveGeneric, {passive: false});
+                    piece.addEventListener('touchend', handleTouchEndPuzzle);
+                });
+            }
+
+            function handleTouchStartGeneric(e) {
+                e.preventDefault();
+                draggedElement = e.currentTarget; 
+                draggedElement.classList.add('dragging');
+                draggedElement.originalParent = draggedElement.parentNode;
+                draggedElement.originalNextSibling = draggedElement.nextSibling;
+                draggedElement.initialStyleTransform = draggedElement.style.transform; 
+                draggedElement.initialStylePosition = draggedElement.style.position;
+                draggedElement.initialStyleZIndex = draggedElement.style.zIndex;
+                draggedElement.initialStyleLeft = draggedElement.style.left;
+                draggedElement.initialStyleTop = draggedElement.style.top;
+                const touch = e.touches[0];
+                const rect = draggedElement.getBoundingClientRect();
+                touchOffsetX = touch.clientX - rect.left;
+                touchOffsetY = touch.clientY - rect.top;
+                draggedElement.style.position = 'fixed'; 
+                draggedElement.style.zIndex = '1000';
+                draggedElement.style.left = `${touch.clientX - touchOffsetX}px`;
+                draggedElement.style.top = `${touch.clientY - touchOffsetY}px`;
+                draggedElement.style.transform = 'none'; 
+            }
+            function handleTouchMoveGeneric(e) {
+                e.preventDefault();
+                if (!draggedElement) return;
+                const touch = e.touches[0];
+                draggedElement.style.left = `${touch.clientX - touchOffsetX}px`;
+                draggedElement.style.top = `${touch.clientY - touchOffsetY}px`;
+            }
+            function restoreDraggedElement() {
+                if (draggedElement && draggedElement.originalParent) {
+                    if (draggedElement.originalNextSibling) {
+                        draggedElement.originalParent.insertBefore(draggedElement, draggedElement.originalNextSibling);
+                    } else {
+                        draggedElement.originalParent.appendChild(draggedElement);
+                    }
+                    draggedElement.style.position = draggedElement.initialStylePosition || (draggedElement.classList.contains('released-polaroid') ? 'relative' : 'static');
+                    draggedElement.style.zIndex = draggedElement.initialStyleZIndex || '';
+                    draggedElement.style.left = draggedElement.initialStyleLeft || '';
+                    draggedElement.style.top = draggedElement.initialStyleTop || '';
+                    draggedElement.style.transform = draggedElement.initialStyleTransform || ''; 
+                    delete draggedElement.originalParent; delete draggedElement.originalNextSibling;
+                    delete draggedElement.initialStylePosition; delete draggedElement.initialStyleZIndex;
+                    delete draggedElement.initialStyleLeft; delete draggedElement.initialStyleTop;
+                    delete draggedElement.initialStyleTransform;
+                }
+                if(draggedElement) draggedElement.classList.remove('dragging');
+            }
+            function handleTouchEndPuzzle(e) {
+                if (!draggedElement) return;
+                draggedElement.style.visibility = 'hidden';
+                const touch = e.changedTouches[0];
+                const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                draggedElement.style.visibility = 'visible';
+                draggedElement.classList.remove('dragging');
+                const dropZone = elementBelow ? elementBelow.closest('.drop-zone') : null;
+                if (dropZone && dropZone.parentElement === puzzleTargetArea && dropZone.children.length === 0) {
+                    const pieceCorrectSlot = draggedElement.dataset.correctSlot;
+                    const zoneSlotId = dropZone.dataset.slotId;
+                    if (pieceCorrectSlot === zoneSlotId) {
+                        dropZone.appendChild(draggedElement);
+                        draggedElement.style.position = 'relative'; 
+                        draggedElement.style.left = ''; draggedElement.style.top = '';
+                        draggedElement.style.zIndex = ''; draggedElement.style.transform = ''; 
+                        draggedElement.classList.add('dropped');
+                        draggedElement.draggable = false;
+                        correctPuzzlePlacements++;
+                        if (correctPuzzlePlacements === NUM_PUZZLE_PIECES) {
+                            if(puzzleCompletionMessage) puzzleCompletionMessage.style.display = 'block';
+                            if(puzzleToGalleryArrow) puzzleToGalleryArrow.style.display = 'block';
+                            if(puzzleTargetArea) puzzleTargetArea.classList.add('completed');
+                        }
+                    } else {
+                        restoreDraggedElement(); 
+                        draggedElement.style.animation = 'shakeHorizontal 0.5s';
+                        setTimeout(() => { if(draggedElement) draggedElement.style.animation = ''; }, 500);
+                    }
+                } else {
+                     restoreDraggedElement(); 
+                }
+                draggedElement = null;
+            }
+            function handlePuzzleDrop(e) { 
+                e.preventDefault();
+                const dropZone = e.target.closest('.drop-zone');
+                if (!dropZone || !draggedElement || dropZone.children.length > 0) { return; }
+                const pieceCorrectSlot = draggedElement.dataset.correctSlot;
+                const zoneSlotId = dropZone.dataset.slotId;
+                if (pieceCorrectSlot === zoneSlotId) {
+                    dropZone.appendChild(draggedElement);
+                    draggedElement.classList.add('dropped');
+                    draggedElement.draggable = false;
+                    correctPuzzlePlacements++;
+                    if (correctPuzzlePlacements === NUM_PUZZLE_PIECES) {
+                        if(puzzleCompletionMessage) puzzleCompletionMessage.style.display = 'block';
+                        if(puzzleToGalleryArrow) puzzleToGalleryArrow.style.display = 'block';
+                        if(puzzleTargetArea) puzzleTargetArea.classList.add('completed');
+                    }
+                } else {
+                    draggedElement.style.animation = 'shakeHorizontal 0.5s';
+                    setTimeout(() => { if(draggedElement) draggedElement.style.animation = ''; }, 500);
+                }
+            }
+            if(puzzleTargetArea) initializePuzzle();
+
+            // --- Script untuk Polaroid Box & String ---
+            const polaroidBoxImage = document.getElementById('polaroid-box-image');
+            const releasedPhotosContainer = document.getElementById('released-photos-container');
+            const photoStringsElements = [document.getElementById('string1'), document.getElementById('string2')];
+            const NUM_CLOTHESPINS_PER_STRING = 4;
+            let polaroidCounter = 0;
+            const polaroidImages = [
+                './images/us/us/foto3.JPG', './images/us/us/foto4.JPG', './images/us/us/foto9.heic',
+                './images/us/us/foto5.JPG', './images/us/us/foto6.JPG', './images/us/us/foto10.heic',
+                './images/us/us/foto11.heic', './images/us/us/foto8.webp'
+            ];
+            function initializePhotoStrings() {
+                photoStringsElements.forEach(stringEl => {
+                    if (!stringEl) return;
+                    stringEl.innerHTML = '';
+                    for (let i = 0; i < NUM_CLOTHESPINS_PER_STRING; i++) {
+                        const slot = document.createElement('div');
+                        slot.classList.add('clothespin-slot');
+                        slot.dataset.stringId = stringEl.id;
+                        slot.dataset.slotIndex = i;
+                        const clothespinImg = document.createElement('img');
+                        clothespinImg.alt = 'Penjepit';
+                        clothespinImg.classList.add('clothespin-visual');
+                        slot.appendChild(clothespinImg);
+                        stringEl.appendChild(slot);
+                        slot.addEventListener('dragover', e => e.preventDefault()); 
+                        slot.addEventListener('drop', handlePolaroidDropOnString); 
+                    }
+                });
+            }
+            if(photoStringsElements.some(el => el)) initializePhotoStrings();
+            if (polaroidBoxImage) {
+                polaroidBoxImage.addEventListener('click', () => {
+                    if (polaroidCounter < polaroidImages.length) {
+                        if (!releasedPhotosContainer) return;
+                        const newPolaroid = document.createElement('div');
+                        newPolaroid.classList.add('released-polaroid');
+                        newPolaroid.draggable = true; 
+                        newPolaroid.id = `released-photo-${polaroidCounter}`;
+                        newPolaroid.dataset.imgSrc = polaroidImages[polaroidCounter];
+                        const initialRandomRotate = (Math.random() - 0.5) * 30; 
+                        const initialTranslateX = (Math.random() - 0.5) * 40; 
+                        newPolaroid.style.setProperty('--initial-rotate', initialRandomRotate + 'deg');
+                        newPolaroid.style.setProperty('--initial-translateX', initialTranslateX + 'px');
+                        const img = document.createElement('img');
+                        img.src = polaroidImages[polaroidCounter];
+                        img.alt = `Kenangan ${polaroidCounter + 1}`;
+                        newPolaroid.appendChild(img);
+                        releasedPhotosContainer.appendChild(newPolaroid);
+                        const finalRotate = (Math.random() - 0.5) * 10;
+                        const finalXOffset = (Math.random() - 0.5) * (releasedPhotosContainer.offsetWidth / 6);
+                        const finalTransform = `translateY(0px) translateX(${finalXOffset}px) rotate(${finalRotate}deg) scale(1)`;
+                        void newPolaroid.offsetWidth; 
+                        setTimeout(() => {
+                            newPolaroid.style.transform = finalTransform;
+                            newPolaroid.classList.add('show');
+                        }, 50);
+                        newPolaroid.addEventListener('dragstart', e => {
+                            draggedElement = e.target;
+                            setTimeout(() => { if(draggedElement) draggedElement.classList.add('dragging');}, 0);
+                        });
+                        newPolaroid.addEventListener('dragend', e => {
+                            if(e.target.classList) e.target.classList.remove('dragging');
+                            draggedElement = null; 
+                        });
+                        newPolaroid.addEventListener('touchstart', handleTouchStartGeneric, {passive: false});
+                        newPolaroid.addEventListener('touchmove', handleTouchMoveGeneric, {passive: false});
+                        newPolaroid.addEventListener('touchend', handleTouchEndPolaroid);
+                        polaroidCounter++;
+                    } else {
+                        polaroidBoxImage.style.animation = 'shakeHorizontal 0.5s';
+                        setTimeout(() => { if(polaroidBoxImage) polaroidBoxImage.style.animation = ''; }, 500);
+                    }
+                });
+            }
+            function handleTouchEndPolaroid(e) { 
+                if (!draggedElement) return;
+                draggedElement.style.visibility = 'hidden';
+                const touch = e.changedTouches[0];
+                const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                draggedElement.style.visibility = 'visible';
+                const slot = elementBelow ? elementBelow.closest('.clothespin-slot') : null;
+                if (slot && !slot.querySelector('.dropped-polaroid-on-string')) {
+                    handlePolaroidDropOnStringLogic(slot); 
+                } else {
+                    restoreDraggedElement(); 
+                }
+                draggedElement = null; 
+            }
+            function handlePolaroidDropOnStringLogic(slot) {
+                if (!draggedElement) return;
+                const polaroidOnString = document.createElement('div');
+                polaroidOnString.classList.add('dropped-polaroid-on-string');
+                const randomRotateDropped = (Math.random() - 0.5) * 6;
+                polaroidOnString.style.transform = `translateX(-50%) rotate(${randomRotateDropped}deg)`;
+                const img = document.createElement('img');
+                img.src = draggedElement.dataset.imgSrc;
+                img.alt = 'Kenangan Terpasang';
+                polaroidOnString.appendChild(img);
+                slot.appendChild(polaroidOnString);
+                if (draggedElement.parentNode) { 
+                    draggedElement.parentNode.removeChild(draggedElement);
+                }
+            }
+            function handlePolaroidDropOnString(e) { 
+                e.preventDefault();
+                const slot = e.target.closest('.clothespin-slot');
+                if (!slot || !draggedElement || slot.querySelector('.dropped-polaroid-on-string')) { return; }
+                handlePolaroidDropOnStringLogic(slot); 
+            }
+        });
+    </script>
+</body>
+</html>

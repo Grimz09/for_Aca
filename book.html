@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Story Book</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <style>
+        body.book-page {
+            background-color: #e8eaf6; /* Warna latar soft */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Georgia', serif;
+            overflow: hidden; /* Hindari scroll bar yang tidak diinginkan */
+            perspective: 1500px; /* Untuk efek 3D pada buku jika diperlukan */
+        }
+
+        .book-container {
+            width: 80vw; /* Lebar buku */
+            max-width: 900px;
+            height: 60vh; /* Tinggi buku */
+            max-height: 600px;
+            position: relative;
+            opacity: 0;
+            animation: slideUpBook 1s 0.5s ease-out forwards; /* Animasi kemunculan */
+            /* Jika menggunakan Turn.js, Turn.js akan menangani banyak style ini */
+        }
+
+        .book {
+            width: 100%;
+            height: 100%;
+            display: flex; /* Untuk menyusun halaman kiri dan kanan */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .page {
+            width: 50%; /* Setiap halaman adalah separuh buku */
+            height: 100%;
+            background-color: #fffaf0; /* Warna kertas */
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            padding: 30px;
+            overflow-y: auto; /* Jika konten lebih panjang dari halaman */
+            display: flex; /* Untuk mengatur konten di dalam halaman */
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .page img.polaroid-in-book {
+            max-width: 70%;
+            height: auto;
+            margin-bottom: 20px;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .page p {
+            font-size: 1em;
+            line-height: 1.6;
+            color: #333;
+            text-align: justify; /* Rata kiri-kanan untuk teks panjang */
+        }
+        .page .prolog-title {
+            font-family: 'Brush Script MT', 'cursive';
+            font-size: 2.5em;
+            color: #5d5d5d;
+            margin-bottom: 20px;
+        }
+
+        .navigation-buttons {
+            position: absolute;
+            bottom: -60px; /* Di bawah buku */
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-button {
+            padding: 10px 20px;
+            background-color: #7986cb; /* Warna tombol navigasi */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .nav-button:hover {
+            background-color: #5c6bc0;
+        }
+        .nav-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Halaman yang tidak aktif (untuk logika JS) */
+        .page-hidden {
+            display: none !important;
+        }
+
+        /* Hiasan bunga seperti di gambar */
+        .flower {
+            position: absolute;
+            width: 50px; /* Ukuran bunga */
+            height: 50px;
+            background-image: url('images/flower-icon.png'); /* Ganti dengan gambar bunga Anda */
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.7;
+            pointer-events: none; /* Agar tidak mengganggu interaksi lain */
+        }
+        /* Posisi contoh bunga (sesuaikan) */
+        .flower.f1 { top: 5%; left: 5%; transform: rotate(-15deg); }
+        .flower.f2 { top: 10%; right: 8%; transform: rotate(20deg); }
+        .flower.f3 { bottom: 8%; left: 12%; transform: rotate(10deg); }
+        .flower.f4 { bottom: 5%; right: 5%; transform: rotate(-5deg); }
+        .flower.f5 { top: 40%; left: 2%; transform: rotate(30deg); }
+        .flower.f6 { top: 35%; right: 2%; transform: rotate(-25deg); }
+         /* Tambahkan lebih banyak jika perlu */
+    </style>
+</head>
+<body class="book-page">
+    <div class="flower f1"></div>
+    <div class="flower f2"></div>
+    <div class="flower f3"></div>
+    <div class="flower f4"></div>
+    <div class="flower f5"></div>
+    <div class="flower f6"></div>
+
+    <div class="book-container">
+        <div class="book" id="myBook">
+            <div class="page" id="page-1">
+                <h2 class="prolog-title">Prolog</h2>
+                <img src="images/book-photo1.jpg" alt="Our First Anniversary" class="polaroid-in-book">
+                <p>Today, as we celebrate our first anniversary, I want to remind you how much you mean to me. Every day with you is a blessing, and I am endlessly grateful for your love, kindness, and the warmth you bring into my life. Here's to us, to our love, and to many more years of happiness together.</p>
+            </div>
+            <div class="page page-hidden" id="page-2">
+                <img src="images/book-photo2.jpg" alt="Sweet Moment" class="polaroid-in-book">
+                <p>Remember this day? We were so happy, laughing under the sun. Moments like these are the treasures I hold dear. Every smile, every shared glance, builds the beautiful story of us.</p>
+            </div>
+
+            <div class="page page-hidden" id="page-3">
+                <p>Another cherished memory. Your support and understanding have been my rock. Thank you for being you, and for letting me be me. I look forward to many more adventures with you by my side.</p>
+            </div>
+            <div class="page page-hidden" id="page-4">
+                <img src="images/book-photo3.jpg" alt="Adventure Together" class="polaroid-in-book">
+                <p>To many more chapters in our book of love. I love you more than words can say. Happy Anniversary, my dearest.</p>
+                <button class="nav-button" id="toPuzzleButton" style="margin-top: 20px;">Solve a Puzzle for a Final Surprise!</button>
+            </div>
+            </div>
+        <div class="navigation-buttons">
+            <button class="nav-button" id="prevPage" disabled>Previous</button>
+            <button class="nav-button" id="nextPage">Next</button>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript untuk navigasi halaman buku sederhana
+        const pages = document.querySelectorAll('.book .page');
+        const prevButton = document.getElementById('prevPage');
+        const nextButton = document.getElementById('nextPage');
+        const toPuzzleButton = document.getElementById('toPuzzleButton');
+        let currentPagePair = 0; // Pasangan halaman yang ditampilkan (0 = halaman 1&2, 1 = halaman 3&4, dst.)
+        const totalPagePairs = Math.ceil(pages.length / 2);
+
+        function showPagePair(pairIndex) {
+            pages.forEach(page => page.classList.add('page-hidden')); // Sembunyikan semua
+
+            const leftPageIndex = pairIndex * 2;
+            const rightPageIndex = pairIndex * 2 + 1;
+
+            if (pages[leftPageIndex]) {
+                pages[leftPageIndex].classList.remove('page-hidden');
+                // Animasi sederhana saat halaman muncul (bisa dikembangkan)
+                pages[leftPageIndex].style.animation = 'fadeInContent 0.5s ease-out';
+            }
+            if (pages[rightPageIndex]) {
+                pages[rightPageIndex].classList.remove('page-hidden');
+                pages[rightPageIndex].style.animation = 'fadeInContent 0.5s 0.2s ease-out'; // Delay sedikit
+            }
+
+            prevButton.disabled = pairIndex === 0;
+            nextButton.disabled = pairIndex >= totalPagePairs - 1;
+        }
+
+        nextButton.addEventListener('click', () => {
+            if (currentPagePair < totalPagePairs - 1) {
+                currentPagePair++;
+                showPagePair(currentPagePair);
+            }
+        });
+
+        prevButton.addEventListener('click', () => {
+            if (currentPagePair > 0) {
+                currentPagePair--;
+                showPagePair(currentPagePair);
+            }
+        });
+
+        toPuzzleButton.addEventListener('click', () => {
+            window.location.href = "puzzle.html";
+        });
+
+        // Tampilkan halaman pertama saat load
+        showPagePair(currentPagePair);
+
+        // Animasi buku muncul (pastikan ada di animations.css)
+        // .book-container { animation: slideUpBook 1s 0.5s ease-out forwards; }
+    </script>
+</body>
+</html>

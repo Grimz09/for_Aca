@@ -1,0 +1,151 @@
+.book-viewport {
+    width: 90vw; /* Lebar area pandang buku */
+    max-width: 800px; /* Maksimum lebar */
+    height: 60vh; /* Tinggi area pandang buku */
+    max-height: 550px; /* Maksimum tinggi */
+    margin: 20px auto;
+    position: relative; /* Untuk tombol navigasi */
+}
+
+.book-viewport .container { /* Container untuk turn.js atau implementasi manual */
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.book {
+    width: 100% !important; /* Override inline style dari turn.js jika ada */
+    height: 100% !important;
+    /* background-color: #fdfdfd; */
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    /* Turn.js akan menangani tampilan halaman, atau kita buat manual */
+    display: flex; /* Untuk implementasi manual sederhana */
+    perspective: 2500px; /* Untuk efek 3D pada halaman */
+}
+
+/* Setiap div di dalam .book adalah satu sisi halaman */
+.book > div {
+    background-color: #fffaf0; /* Warna kertas */
+    background-size: cover;
+    background-position: center;
+    box-sizing: border-box;
+    padding: 20px;
+    overflow: hidden; /* Konten tidak meluber */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9em;
+    line-height: 1.6;
+    color: #333;
+    border: 1px solid #e0e0e0; /* Garis tipis antar halaman */
+}
+
+.book > div.hard { /* Untuk sampul atau halaman tebal */
+    background-color: #e8e0d0; /* Warna berbeda untuk sampul */
+    border: 2px solid #c0b8a8;
+    font-weight: bold;
+}
+.book > div.hard img, .book > div img.page-image { /* Gambar di dalam halaman */
+    max-width: 85%;
+    max-height: 60%;
+    object-fit: contain;
+    margin: 10px 0;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.book > div h3 {
+    font-family: 'Playfair Display', serif;
+    color: #5d4037;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+/* Gaya untuk implementasi flip manual (jika Turn.js tidak digunakan) */
+.book .page-manual { /* Jika kita membuat class sendiri untuk halaman */
+    width: 50%; /* Setengah dari buku */
+    height: 100%;
+    position: absolute;
+    top: 0;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); /* Transisi flip */
+}
+.book .page-manual.left-side {
+    left: 0;
+    transform-origin: right center; /* Titik putar di tengah buku (kanan halaman kiri) */
+    border-radius: 0 8px 8px 0; /* Rounded di sisi dalam */
+}
+.book .page-manual.right-side {
+    left: 50%;
+    transform-origin: left center; /* Titik putar di tengah buku (kiri halaman kanan) */
+    border-radius: 8px 0 0 8px; /* Rounded di sisi dalam */
+}
+.book .page-manual.flipped {
+    transform: rotateY(-180deg); /* Efek membalik */
+}
+/* Atur z-index agar halaman yang dibalik berada di bawah */
+.book .page-manual.left-side.flipped { z-index: 1; }
+.book .page-manual.right-side.flipped { z-index: 1; }
+.book .page-manual.left-side:not(.flipped) { z-index: 10; }
+.book .page-manual.right-side:not(.flipped) { z-index: 10; }
+
+
+/* Tombol Navigasi Buku */
+.book-navigation {
+    text-align: center;
+    margin-top: 15px;
+    position: absolute; /* Di bawah buku-viewport */
+    bottom: -50px; /* Sesuaikan posisi */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100; /* Di atas elemen lain */
+}
+.book-navigation .arrow {
+    background-color: rgba(0,0,0,0.5);
+    border: none;
+    color: white;
+    padding: 8px; /* Padding untuk area klik */
+    border-radius: 50%;
+    cursor: pointer;
+    margin: 0 10px;
+    width: 40px; /* Ukuran tombol */
+    height: 40px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s;
+}
+.book-navigation .arrow img { /* Styling untuk gambar panah placeholder */
+    width: 60%;
+    height: 60%;
+    filter: invert(1); /* Jika gambar panah hitam, jadi putih */
+}
+.book-navigation .arrow:hover {
+    background-color: rgba(0,0,0,0.8);
+}
+.book-navigation .arrow:disabled {
+    background-color: rgba(0,0,0,0.2);
+    cursor: not-allowed;
+}
+
+/* CSS untuk animasi flip manual yang lebih baik (jika tidak pakai Turn.js) */
+/* Ini adalah contoh, perlu disesuaikan dengan struktur JS */
+.book > div.current-left {
+    /* Halaman kiri yang sedang tampil */
+    z-index: 2;
+}
+.book > div.current-right {
+    /* Halaman kanan yang sedang tampil */
+    z-index: 2;
+}
+.book > div.flipped-left {
+    /* Halaman kiri yang sudah dibalik */
+    transform: rotateY(-180deg);
+    z-index: 1;
+}
+.book > div.flipped-right {
+    /* Halaman kanan yang sudah dibalik (jarang terjadi, biasanya halaman kiri yang berputar) */
+    transform: rotateY(180deg);
+    z-index: 1;
+}
